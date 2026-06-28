@@ -1,0 +1,128 @@
+"""
+Abstract base class for all model wrappers.
+Every model must implement fit(), predict_proba(), and get_metadata().
+This ensures the benchmark harness treats all models identically.
+"""
+
+from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
+from typing import Optional
+import numpy as np
+import time
+
+
+@dataclass
+class RunResult:
+    """Everything produced by a single model run on a single dataset."""
+    model_name: str
+    dataset_name: str
+    seed: int
+    
+    # Core predictions
+    y_test: np.ndarray
+    y_proba: np.ndarray          # predicted probabilities for positive class
+    y_pred: np.ndarray           # hard predictions at 0.5 threshold
+    
+    # Timing
+    fit_time_sec: float
+    predict_time_sec: float
+    
+    # Metadata
+    n_train: int
+    n_test: int
+    n_features: int
+    tuning_time_sec: float = 0.0      # 0 for TabPFN, >0 for all tuned models
+    total_wall_time_sec: float = 0.0  # tuning + fit + predict
+    throughput_rows_per_sec: float = 0.0  # n_test / predict_time_sec
+    best_params: Optional[dict] = None
+    error: Optional[str] = None  # non-None if the run failed
+
+
+class ModelWrapper(ABC):
+    """
+    Every model in the benchmark inherits from this class.
+    
+    Design principle: the wrapper is responsible for all model-specific
+    logic (tuning, scaling, etc.). The harness only calls fit() and
+    predict_proba(), and records timing around each.
+    """
+
+    def __init__(self, name: str, random_state: int = 42):
+        self.name = name
+        self.random_state = random_state
+        self._model = None
+
+    @abstractmethod
+    def fit(self, X_train: np.ndarray, y_train: np.ndarray) -> None:
+        """Train the model. Must set self._model."""
+        pass
+
+    @abstractmethod
+    def predict_proba(self, X_test: np.ndarray) -> np.ndarray:
+        """Return probability of positive class, shape (n_samples,)."""
+        pass
+
+    def run(
+        self,
+        X_train: np.ndarray,
+        y_train: np.ndarray,
+        X_test: np.ndarray,
+        y_test: np.ndarray,
+        dataset_name: str,
+        seed: int,
+    ) -> RunResult:
+        """
+        Full timed run: fit + predict + return RunResult.
+        Catches exceptions and records them without crashing the harness.
+        """
+        n_train, n_features = X_train.shape
+        n_test = X_test.shape[0]
+        
+        try:
+            # Timed fit
+            t0 = time.perf_counter()
+            self.fit(X_train, y_train)
+            fit_time = time.perf_counter() - t0
+
+            # Timed predict
+            t0 = time.perf_counter()
+            y_proba = self.predict_proba(X_test)
+            predict_time = time.perf_counter() - t0
+            tuning_time = getattr(self, "tuning_time_sec_", 0.0)
+            total_wall  = tuning_time + fit_time + predict_time
+
+            y_pred = (y_proba >= 0.5).astype(int)
+
+            return RunResult(
+                model_name=self.name,
+                dataset_name=dataset_name,
+                seed=seed,
+                y_test=y_test,
+                y_proba=y_proba,
+                y_pred=y_pred,
+                fit_time_sec=fit_time,
+                predict_time_sec=predict_time,
+                tuning_time_sec=tuning_time,             
+                total_wall_time_sec=total_wall,          
+                throughput_rows_per_sec=n_test / (predict_time + 1e-9),
+                n_train=n_train,
+                n_test=n_test,
+                n_features=n_features,
+            )
+
+        except Exception as e:
+            print(f"  ERROR: {self.name} on {dataset_name} seed {seed}: {e}")
+            return RunResult(
+                model_name=self.name,
+                dataset_name=dataset_name,
+                seed=seed,
+                y_test=y_test,
+                y_proba=np.full(n_test, 0.5),
+                y_pred=np.zeros(n_test, dtype=int),
+                fit_time_sec=0.0,
+                predict_time_sec=0.0,
+                n_train=n_train,
+                n_test=n_test,
+                n_features=n_features,
+                error=str(e),
+            )

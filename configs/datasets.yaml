@@ -1,0 +1,139 @@
+# OpenML-CC18 subset — curated for TabPFN's sweet spot
+# Criteria: binary classification, N < 10000, p < 100, no image/text features
+
+datasets:
+
+  - id: 31           # openml dataset id
+    name: credit-g
+    task: binary
+    target: class
+    n_rows: 1000
+    n_features: 20
+    domain: finance
+    notes: "German Credit — classic imbalanced credit risk"
+
+  - id: 37
+    name: diabetes
+    task: binary
+    target: class
+    n_rows: 768
+    n_features: 8
+    domain: healthcare
+    notes: "Pima Indians Diabetes — small, well-studied"
+
+  - id: 44
+    name: spambase
+    task: binary
+    target: class
+    n_rows: 4601
+    n_features: 57
+    domain: nlp-derived
+    notes: "Email spam — moderate size, many features"
+
+  - id: 1462
+    name: banknote-auth
+    task: binary
+    target: class
+    n_rows: 1372
+    n_features: 4
+    domain: security
+    notes: "4 features only — tests low-dim performance"
+
+  - id: 1479
+    name: hill-valley
+    task: binary
+    target: class
+    n_rows: 1212
+    n_features: 100
+    domain: synthetic
+    notes: "Near TabPFN feature limit — stress test"
+
+  - id: 1510
+    name: wdbc
+    task: binary
+    target: diagnosis
+    n_rows: 569
+    n_features: 30
+    domain: healthcare
+    notes: "Breast cancer Wisconsin — highly separable"
+
+  - id: 1494
+    name: qsar-biodeg
+    task: binary
+    target: class
+    n_rows: 1055
+    n_features: 41
+    domain: chemistry
+    notes: "Molecular QSAR — domain shift from typical tabular"
+
+  - id: 40945
+    name: titanic
+    task: binary
+    target: survived
+    n_rows: 891
+    n_features: 11
+    domain: historical
+    notes: "Classic narrative dataset — very small N"
+
+  - id: 4538
+    name: churn
+    task: binary
+    target: class
+    n_rows: 5000
+    n_features: 20
+    domain: telecom
+    notes: "Telecom churn — realistic business imbalance"
+
+  - id: 1487
+    name: ozone-level
+    task: binary
+    target: class
+    n_rows: 2536
+    n_features: 72
+    domain: environment
+    notes: "High feature count relative to rows"
+
+  - id: 1067
+    name: kc1
+    task: binary
+    target: defects
+    n_rows: 2109
+    n_features: 21
+    domain: software
+    notes: "Software defect prediction — highly imbalanced"
+
+  - id: 1068
+    name: pc1
+    task: binary
+    target: defects
+    n_rows: 1109
+    n_features: 21
+    domain: software
+    notes: "Same domain as kc1 — cross-dataset consistency test"
+
+  - id: 1475
+    name: first-order-theorem
+    task: binary
+    target: class
+    n_rows: 6118
+    n_features: 51
+    domain: logic
+    notes: "Unusual domain — tests prior generality"
+
+  - id: 1489
+    name: phoneme
+    task: binary
+    target: class
+    n_rows: 5404
+    n_features: 5
+    domain: audio-derived
+    notes: "Very few features — linear separability test"
+
+  - id: 40536
+    name: australian
+    task: binary
+    target: class
+    n_rows: 690
+    n_features: 14
+    domain: finance
+    notes: "Australian credit approval — tiny N, standard benchmark"
