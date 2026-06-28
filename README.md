@@ -89,17 +89,39 @@ Results are saved to:
 
 ## 📈 Sample Results
 
-From initial experiments on 3 datasets (10 seeds each):
+> ⚠️ **Preliminary Results** — Based on 1 random seed (seed=0), 3 datasets. Full benchmark with 10 seeds on all 15 datasets coming soon.
 
-| Model | ROC AUC (mean) | Total Time (s) | Speedup vs XGBoost |
-|-------|----------------|----------------|-------------------|
-| TabPFN | 0.87 | ~3s | **55×** |
-| XGBoost | 0.86 | ~175s | 1.0× |
-| LightGBM | 0.85 | ~85s | 2.1× |
-| CatBoost | 0.85 | ~245s | 0.7× |
-| MLP | 0.84 | ~50s | 3.5× |
+### Performance: ROC AUC (mean across 3 datasets)
 
-> **Key Insight**: TabPFN achieves competitive performance with **zero tuning time**, making it attractive for rapid prototyping and exploration.
+| Model | ROC AUC | vs XGBoost |
+|-------|---------|------------|
+| **TabPFN** | **0.8679** | -0.03% |
+| XGBoost | 0.8682 | baseline |
+| LightGBM | 0.8638 | -0.51% |
+| CatBoost | 0.8598 | -0.97% |
+| MLP | 0.8437 | -2.82% |
+
+### Timing: Total Wall Time (mean, seconds)
+
+| Model | Time (s) | Speedup vs XGBoost |
+|-------|----------|-------------------|
+| **TabPFN** | **6.28** | **16.6×** |
+| LightGBM | 54.15 | 1.9× |
+| MLP | 34.00 | 3.1× |
+| XGBoost | 104.32 | 1.0× |
+| CatBoost | 266.53 | 0.4× |
+
+### Breakdown by Dataset (ROC AUC)
+
+| Model | credit-g | diabetes | banknote-auth |
+|-------|----------|----------|---------------|
+| TabPFN | 0.7794 | 0.8243 | 1.0000 |
+| XGBoost | 0.7738 | 0.8309 | 1.0000 |
+| LightGBM | 0.7608 | 0.8305 | 1.0000 |
+| CatBoost | 0.7714 | 0.8080 | 0.9999 |
+| MLP | 0.7035 | 0.8278 | 1.0000 |
+
+> **Key Insight**: TabPFN achieves **comparable performance** to XGBoost (0.8679 vs 0.8682 ROC AUC) with **16.6× less time**. The main advantage is **zero hyperparameter tuning** — making it attractive for rapid prototyping and exploration.
 
 ## 🧪 Datasets
 
@@ -124,9 +146,14 @@ From initial experiments on 3 datasets (10 seeds each):
 
 1. **Data Split**: 80% train / 20% test (stratified)
 2. **Cross-Validation**: 5-fold stratified for hyperparameter tuning
-3. **Seeds**: 10 random seeds per dataset for robust comparison
+3. **Seeds**: 10 random seeds per dataset for robust comparison (currently: 1 seed for initial results)
 4. **TabPFN**: Subsamples training data if >3000 rows (practical CPU limit)
 5. **Statistical Tests**: Wilcoxon signed-rank for pairwise significance (p < 0.05)
+
+### Run Details
+
+- **Current Results**: 1 seed (seed=0), 3 datasets (credit-g, diabetes, banknote-auth)
+- **Full Benchmark**: 10 seeds, 15 datasets (in progress)
 
 ## 🤝 Contributing
 
@@ -153,7 +180,7 @@ If you use this benchmark in your research, please cite:
 @misc{tabfm-benchmark,
   author = {Siri1702},
   title = {TabFM Benchmark: Tabular Foundation Models vs Gradient Boosted Trees},
-  year = {2025},
+  year = {2026},
   url = {https://github.com/Siri1702/tabfm-benchmark}
 }
 ```
